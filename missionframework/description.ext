@@ -1,0 +1,31 @@
+respawnOnStart = 0;
+allowFunctionsLog = 1;
+
+#include "CAS_Menu\ui\defines.hpp"
+#include "CAS_Menu\ui\casMenu_interface.hpp"
+#include "CAS_Menu\ui\object.hpp"
+class cfgFunctions
+{
+	#include "CAS_Menu\Functions.cpp"
+};
+
+// Dynamic Airport (Carrier: USS Freedom)
+class CfgVehicles
+{
+	#include "CAS_menu\Dynamic_Airport.cpp"
+};
+
+// CfgNotification
+class CfgNotifications
+{
+	#include "CAS_Menu\Notifications.cpp"
+};
+
+// CfgSounds
+class CfgSounds
+{
+	#include "CAS_Menu\Sounds.cpp"
+};
+
+import RscTitle;
+#include "CAS_Menu\ui\hud.hpp"

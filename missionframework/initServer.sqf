@@ -1,1 +1,0 @@
-[] call PIG_fnc_initCas;

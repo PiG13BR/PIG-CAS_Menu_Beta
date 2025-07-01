@@ -138,7 +138,7 @@ PIG_CAS_planesInAir pushBackUnique _plane;
 publicVariable "PIG_CAS_planesInAir";
 
 //[_plane] call PIG_fnc_planeMonitorSensors;
-
+/*
 // ((thisTrigger getVariable ["PIG_CAS_trgJetObject", objNull]) distance2d thisTrigger <= (thisTrigger getVariable ["PIG_CAS_trgLoiterRadius", PIG_CAS_LoiterMinRadius]) + 500) && 
 // Trigger to check distance from loiter position and make support available
 _trg = createTrigger ["EmptyDetector", _loiterPos, false];
@@ -179,5 +179,36 @@ _trg setTriggerStatements [
     toString {}
 ];
 _trg setTriggerInterval 2;
+*/
+_plane addEventHandler ["Gear", {
+	params ["_plane", "_gearState"];
+    if !(_gearState) then {
+                _plane allowDamage true;
+        (driver _plane) allowDamage true;
+        _groupID = (group (driver _plane));
+
+        ["PIG_CAS_Available_Notification", [_groupID, _groupID]] remoteExec ["BIS_fnc_showNotification", PIG_CAS_callers];
+        _plane spawn {
+            if (missionNamespace getVariable ["PIG_CAS_activateCasRadioMsg", true]) then {
+                missionNamespace setVariable ["PIG_CAS_activateCasRadioMsg", false, true];
+                private _source = selectRandom [0,1,2];
+                [(driver _this) sideRadio configName(configFile >> "CfgRadio" >> format["mp_groundsupport_05_newpilot_BHQ_%1", _source])] remoteExec ["sideRadio", PIG_CAS_callers];
+                sleep 30; 
+                missionNamespace setVariable ["PIG_CAS_activateCasRadioMsg", true, true];
+            }
+        };
+        [_plane] spawn PIG_fnc_monitorFuel;
+
+        //missionNamespace setVariable ["PIG_CAS_supportAvailable", true, true];
+        _plane setVariable ["PIG_CAS_isTakingOff", false, true];
+        _plane setVariable ["PIG_CAS_isBusy", false, true];
+
+        [_plane] call PIG_fnc_updateCasMenu;
+
+        (driver _plane) disableAI "LIGHTS";
+        _plane setCollisionLight false;
+        _plane removeEventHandler [_thisEvent, _thisEventHandler]
+    }
+}];
 
 true

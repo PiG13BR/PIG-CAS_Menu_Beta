@@ -2,7 +2,7 @@
     File: fn_updateCasMenu.sqf
     Author: PiG13BR (https://github.com/PiG13BR)
     Date: 30/04/2025
-    Update Date: 23/06/2025
+    Update Date: 28/06/2025
 
     Description:
         Update CAS menu buttons if and while open. Based on specific events.
@@ -45,7 +45,7 @@ if (dialog && ((findDisplay 363) getVariable ["PIG_CAS_dialogOpen", false])) the
     lbClear 3632101;
     lbClear 3632102;
     ctrlSetText [3631600, "Call Airstrike"];
-    _plane setVariable ["PIG_CAS_isAttackButton", true];
+    _plane setVariable ["PIG_CAS_isAttackButton", true, true];
 
     // Track the plane locally
     [_plane] call PIG_fnc_planeTracker;
@@ -128,7 +128,7 @@ if (dialog && ((findDisplay 363) getVariable ["PIG_CAS_dialogOpen", false])) the
                 (displayCtrl 3631601) ctrlSetToolTip "This aircraft is doing an attack run";
                 ctrlSetText [3631600, "Cancel Attack"]; // Attack button > Cancel button
                 ctrlEnable [3631600, true]; // Enable cancel button
-                _plane setVariable ["PIG_CAS_isAttackButton", false];
+                _plane setVariable ["PIG_CAS_isAttackButton", false, true];
 
                 // Status
                 (displayCtrl 3631013) ctrlSetText "Attacking";

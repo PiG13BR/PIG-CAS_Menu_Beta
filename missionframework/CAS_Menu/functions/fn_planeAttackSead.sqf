@@ -2,7 +2,7 @@
     File: fn_planeAttackSead.sqf
     Author: PiG13BR (https://github.com/PiG13BR)
     Date: 25/05/2025
-    Update Date: 23/06/2025
+    Update Date: 01/07/2025
 
     Description
         Creates a move waypoint for the aircraft and monitor its sensors to find radar targets.
@@ -116,7 +116,7 @@ private _firedEH = _plane addEventHandler ["Fired", {
             // Delete projectile from the array
             (_plane getVariable ["PIG_CAS_seadProjectiles", []]) deleteAt ((_plane getVariable ["PIG_CAS_seadProjectiles", []]) find _projectile);
             // Only finish attack if all missiles gets deleted
-            if (count (_plane getVariable ["PIG_CAS_seadProjectiles", []]) < 1) then {_plane setVariable ["PIG_CAS_isBusy", false]; _plane setVariable ["PIG_CAS_isAttacking", false]};
+            if (count (_plane getVariable ["PIG_CAS_seadProjectiles", []]) < 1) then {_plane setVariable ["PIG_CAS_isBusy", false]; _plane setVariable ["PIG_CAS_isAttacking", false]; _plane setVariable ["PIG_CAS_radarTargets", nil]; _plane setVariable ["PIG_CAS_targetingRadars", nil]; [_plane] call PIG_fnc_updateCasMenu};
             
             // Access if radar target is destroyed
             if ((!isNull _target) && (!alive _target) && (!isNull _plane)) then {
@@ -125,7 +125,7 @@ private _firedEH = _plane addEventHandler ["Fired", {
 
                 // Delete radar targets from the array
                 (_plane getVariable ["PIG_CAS_targetingRadars", []]) deleteAt ((_plane getVariable ["PIG_CAS_targetingRadars", []]) find _target);
-                //_plane setVariable ["PIG_CAS_targetingRadars", _remainingTargets];
+                (_plane getVariable ["PIG_CAS_radarTargets", []]) deleteAt ((_plane getVariable ["PIG_CAS_radarTargets", []]) find _target);
             };
         }];
     };
@@ -193,6 +193,8 @@ while {(alive _plane) && !_endLoop} do {
 
 if (!alive _plane) exitWith {};
 
+_plane setVariable ["PIG_CAS_isBusy", false]; 
+_plane setVariable ["PIG_CAS_isAttacking", false];
 [_plane] call PIG_fnc_updateCasMenu;
 
 [_plane, _plane getVariable ["PIG_CAS_loiterCasPosition", [0,0,0]], _plane getVariable ["PIG_CAS_planeLoiterRadius", PIG_CAS_LoiterMinRadius]] call PIG_fnc_createLoiterWaypoint;

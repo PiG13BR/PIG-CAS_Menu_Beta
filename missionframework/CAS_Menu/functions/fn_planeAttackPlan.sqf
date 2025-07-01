@@ -162,7 +162,6 @@ switch _supportType do {
 	case "STRAFING RUN" : {
 		_laserCanRedirect = true;
 		_distanceToFire = 700;
-		//[_plane, _posLogic, _approachPos, _attackDir, _approachDist, _approachAlt, _distanceToFire] execVM "planeAttackAlt.sqf";
 	};
 	case "AIR-TO-GROUND" : {
 		_distanceToFire = 1500;
@@ -182,12 +181,10 @@ switch _supportType do {
 			};
 		}];
 		(_plane getVariable ["PIG_CAS_attackingEH", []]) append [["Fired", _FiredEH]];
-		//[_plane, _posLogic, _approachDist, _approachAlt, _distanceToFire] execVM "planeAttackDirect.sqf";
 	};
 	case "GP BOMBS" : {
 		_plane setVariable ["PIG_CAS_targetOffSet", 50];
 		_attackDir = _plane getDir _targetPos;
-		//[_plane, _posLogic, _approachDist, _approachAlt, _distanceToFire] execVM "planeAttackDirect.sqf";
 	};
 	case "CLUSTER" : {
 		_laserCanRedirect = true;
@@ -207,7 +204,6 @@ switch _supportType do {
 			};
 		}];
 		(_plane getVariable ["PIG_CAS_attackingEH", []]) append [["Fired", _FiredEH]];
-		//[_plane, _posLogic, _approachPos, _attackDir, _approachDist, _approachAlt, _distanceToFire] execVM "planeAttackAlt.sqf";
 		
 	};
 	case "LASER-GUIDED BOMBS" : {
@@ -240,17 +236,27 @@ switch _supportType do {
 			};
 		}];
 		(_plane getVariable ["PIG_CAS_attackingEH", []]) append [["Fired", _FiredEH], ["Fired", _FiredEHNotification]];
-		//[_plane, _posLogic, _approachDist, _approachAlt, _distanceToFire] execVM "planeAttackDirect.sqf";
 	};
 	case "GP ROCKETS" : {
 		_plane setVariable ["PIG_CAS_targetOffSet", 20];
 		_attackDir = _plane getDir _targetPos;
-		//[_plane, _posLogic, _approachDist, _approachAlt, _distanceToFire] execVM "planeAttackDirect.sqf";
 	};
 	case "LASER-GUIDED ROCKETS" : {
 		_plane setVariable ["PIG_CAS_targetOffSet", 20];
 		_attackDir = _plane getDir _targetPos;
-		//[_plane, _posLogic, _approachDist, _approachAlt, _distanceToFire] execVM "planeAttackDirect.sqf";
+		private _FiredEHNotification = _plane addEventHandler ["Fired", {
+			params ["_unit", "_weapon", "_muzzle", "_mode", "_ammo", "_magazine", "_projectile", "_gunner"];
+
+			if ((_weapon call BIS_fnc_itemType) # 1 == "CounterMeasuresLauncher") exitWith {};
+			_magazineSelected = _unit getVariable ["PIG_CAS_magazineWeaponSelected", ""];
+
+			if ((toLowerANSI _magazine) isEqualTo (_magazineSelected # 0)) then {
+				["walkie_sideChat"] remoteExec ["playSound", PIG_CAS_callers];
+				[(driver _unit), "Rocket fired. Out."] remoteExec ["sideChat", PIG_CAS_callers];
+				_unit removeEventHandler [_thisEvent, _thisEventHandler]	
+			};
+		}];
+		(_plane getVariable ["PIG_CAS_attackingEH", []]) append [["Fired", _FiredEH], ["Fired", _FiredEHNotification]];
 	};
 	case "INFRARED AA" : {
 		_plane setVariable ["PIG_CAS_requireVectoring", false];
@@ -292,6 +298,7 @@ if (_plane distance2d _targetPos <= _pathPos1 distance2d _targetPos) then {
     _wp0 setWaypointSpeed "FULL";
     _plane flyInHeightASL [(_approachPos select 2), (_approachPos select 2), (_approachPos select 2)];
     _plane setVariable ["PIG_CAS_WAYPOINT_0_INDEX", (_wp0 # 1)];
+	_wp2 setWaypointCompletionRadius 800;
 };
 
 private _wp1 = (group _planeDriver) addWaypoint [_pathPos1, 0];
@@ -314,7 +321,7 @@ private _pathPosFire = _targetPos getPos [_distanceToFire, _attackDir + 180];
 _pathPosFire set [2, (_approachPos select 2)]; // Set altitude
 private _wpFire = (group _planeDriver) addWaypoint [_pathPosFire, 0];
 _plane setVariable ["PIG_CAS_WAYPOINT_FIRE_INDEX", (_wpFire # 1)];
-_wpFire setWaypointCompletionRadius 500;
+_wpFire setWaypointCompletionRadius 300;
 
 private _wp4 = (group _planeDriver) addWaypoint [_targetPos, 0];
 _wp4 setWaypointCompletionRadius 500;

@@ -2,7 +2,7 @@
     File: fn_registerAircraft.sqf
     Author: PiG13BR (https://github.com/PiG13BR)
     Date: 26/04/2025
-    Update Date:08/06/2025
+    Update Date: 28/06/2025
 
     Description:
         Register aircraft to appears in the cas menu. Call this function in the init of the airplane.
@@ -32,7 +32,7 @@ if (_plane isEqualTo objNull) exitWith {["[CAS MENU] Object is Null. Cannot regi
 
 // Check if the aircraft has tailhook in configs
 private _tailHook = (getNumber(configFile >> "cfgVehicles" >> typeOf _plane >> "tailHook"));
-if ((_airportID isEqualTo -1) && {_tailHook < 1}) exitWith {["[CAS MENU] %1 has no tail hook on its configuration. Cannot register the aircraft to take off or land from a carrier", (typeOf _plane)] call BIS_fnc_error};
+if ((_airportID isEqualType "") && {_tailHook < 1}) exitWith {["[CAS MENU] %1 has no tail hook on its configuration. Cannot register the aircraft to take off or land from a carrier", (typeOf _plane)] call BIS_fnc_error};
 
 private _onCarrier = false;
 // Check if dynamic airport is a carrier
@@ -53,4 +53,4 @@ if (isNil "PIG_CAS_planeList") then {
 private _groupID = groupID (group (driver _plane));
 PIG_CAS_planeList pushBack [_plane, _groupID, _airportID, _onCarrier];
 PIG_CAS_planeList sort true; // Put them in order
-publicVariable "PIG_CAS_planeList";
+publicVariable "PIG_CAS_planeList"; // Broadcast to the network

@@ -53,7 +53,7 @@ PIG_CAS_fnc_loiterPosMarker = {
     "PIG_CAS_marker_loiterPosEllipse" setMarkerSizeLocal [_loiterRadius, _loiterRadius];
     "PIG_CAS_marker_loiterPosEllipse" setMarkerPosLocal _loiterPos;
     "PIG_CAS_marker_loiterPosEllipse" setMarkerColorLocal _color;
-    _plane setVariable ["PIG_CAS_planeLoiterRadius", _loiterRadius];
+    //_plane setVariable ["PIG_CAS_planeLoiterRadius", _loiterRadius, true];
 };
 
 PIG_CAS_fnc_resetAttackMarkers = {
@@ -423,12 +423,12 @@ PIG_CAS_fnc_resetLoiterMarkers = {
             _sizeAjusted = ((_size # 0) + 100) min PIG_CAS_LoiterMaxRadius; // Limit to PIG_CAS_LoiterMaxRadius
             //if (_sizeAjusted > PIG_CAS_LoiterMaxRadius) then {_sizeAjusted = PIG_CAS_LoiterMaxRadius};
             "PIG_CAS_marker_loiterPosEllipse" setMarkerSizeLocal [_sizeAjusted, _sizeAjusted];
-            _plane setVariable ["PIG_CAS_planeLoiterRadius", _sizeAjusted];
+            _plane setVariable ["PIG_CAS_planeLoiterRadius", _sizeAjusted, true];
         } else {
             _sizeAjusted = ((_size # 0) - 100) max PIG_CAS_LoiterMinRadius; // Limit to PIG_CAS_LoiterMaxRadius
             //if (_sizeAjusted > PIG_CAS_LoiterMaxRadius) then {_sizeAjusted = PIG_CAS_LoiterMaxRadius};
             "PIG_CAS_marker_loiterPosEllipse" setMarkerSizeLocal [_sizeAjusted, _sizeAjusted];
-            _plane setVariable ["PIG_CAS_planeLoiterRadius", _sizeAjusted];
+            _plane setVariable ["PIG_CAS_planeLoiterRadius", _sizeAjusted, true];
         };
         // Update waypoint
         _wpLoiter = _plane getVariable ["PIG_CAS_loiterWaypoint", []];
@@ -562,7 +562,7 @@ PIG_CAS_fnc_resetLoiterMarkers = {
             _plane setVariable ["PIG_CAS_loiterCasPosition", _loiterPos, true];
             private _loiterRadius = _plane getVariable ["PIG_CAS_planeLoiterRadius", PIG_CAS_LoiterMinRadius];
             [_plane, _loiterPos, _loiterRadius, PIG_CAS_loiterActiveMarkerColor] call PIG_CAS_fnc_loiterPosMarker; // Create marker
-            [_plane, _loiterPos, _loiterRadius, PIG_CAS_loiterActiveMarkerColor] call PIG_fnc_createLoiterWaypoint;
+            [_plane, _loiterPos, _loiterRadius] call PIG_fnc_createLoiterWaypoint;
         }
     };   
 }];
@@ -656,47 +656,51 @@ private _cbCheck = _caller getVariable ["PIG_CAS_cameraChecked", false];
 
     private _plane = (findDisplay 363) getVariable ["PIG_CAS_planeObject", objNull];
 
-    // Draw plane attacking
+    // SEAD Draw
+    if ((_plane getVariable ["PIG_CAS_attackSupportType", "SEAD"]) == "SEAD") then {
+        {
+            _controlOrDisplay drawEllipse [_x, 10, 10, 0, [0.9, 0.5, 0, 1], ""];
+        }forEach (_plane getVariable ["PIG_CAS_radarTargets", []]);
+
+        // Draw aircraft's radar targets
+        {
+            _controlOrDisplay drawIcon [
+                "a3\ui_f\data\igui\cfg\weaponcursors\missile_gs.paa", // custom images can also be used: getMissionPath "\myFolder\myIcon.paa"
+                [1,0,0,1],
+                getPosASL _x,
+                32,
+                32,
+                0,
+                "Radar Targeted",
+                1,
+                0.05,
+                "TahomaB",
+                "right"
+            ]
+        }forEach (_plane getVariable ["PIG_CAS_targetingRadars", []]);
+        
+        // Draw aircraft's fired missiles
+        {
+            _controlOrDisplay drawTriangle
+            [
+                [
+                    // triangle 1 start
+                    _x getRelPos [30, 0],
+                    _x getRelPos [30, -135],
+                    _x getRelPos [30, 135]
+                    // triangle 1 end
+                ],
+                [1,0,0,0.9],
+                "#(rgb,1,1,1)color(1,1,1,1)"
+            ];
+        }forEach (_plane getVariable ["PIG_CAS_seadProjectiles", []]);
+    };
+
+    // Attacking draw
     if (_plane getVariable ["PIG_CAS_isAttacking", false]) exitWith {
         _targetLogic = _plane getVariable ["PIG_CAS_targetLogic", objNull];
         if (!isNull _targetLogic) then {
             _controlOrDisplay drawArrow [(getPosASL _plane), (getPosASL _targetLogic), [1,0,0,1]]
-        };
-        if ((_plane getVariable ["PIG_CAS_attackSupportType", "SEAD"]) == "SEAD") then {
-            {
-               _controlOrDisplay drawEllipse [_x, 10, 10, 0, [0.9, 0.5, 0, 1], ""];
-            }forEach (_plane getVariable ["PIG_CAS_radarTargets", []]);
-
-            {
-                _controlOrDisplay drawIcon [
-                    "a3\ui_f\data\igui\cfg\weaponcursors\missile_gs.paa", // custom images can also be used: getMissionPath "\myFolder\myIcon.paa"
-                    [1,0,0,1],
-                    getPosASL _x,
-                    32,
-                    32,
-                    0,
-                    "Radar Targeted",
-                    1,
-                    0.05,
-                    "TahomaB",
-                    "right"
-                ]
-            }forEach (_plane getVariable ["PIG_CAS_targetingRadars", []]);
-
-            {
-                _controlOrDisplay drawTriangle
-                [
-                    [
-                        // triangle 1 start
-                        _x getRelPos [30, 0],
-                        _x getRelPos [30, -135],
-                        _x getRelPos [30, 135]
-                        // triangle 1 end
-                    ],
-                    [1,0,0,0.9],
-                    "#(rgb,1,1,1)color(1,1,1,1)"
-                ];
-            }forEach (_plane getVariable ["PIG_CAS_seadProjectiles", []]);
         };
     };
 

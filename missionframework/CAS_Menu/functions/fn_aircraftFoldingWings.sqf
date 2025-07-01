@@ -48,6 +48,8 @@
 
 */
 
+if (!isServer) exitWith {};
+
 params [["_plane", objNull, [objNull]], ["_state", false, [FALSE]]];
 
 if (isNull _plane || {!local _plane || {!alive _plane}}) exitWith {};

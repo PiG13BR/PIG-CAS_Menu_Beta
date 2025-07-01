@@ -2,7 +2,7 @@
     File: fn_planeTakeOff.sqf
     Author: PiG13BR (https://github.com/PiG13BR)
     Date: 29/04/2025
-    Update Date: 16/06/2025
+    Update Date: 29/06/2025
 
     Description
         Manages the taking off of the selected aircraft from the menu
@@ -35,21 +35,6 @@ if (count (crew _plane) > 0) then {
 
 // Create crew
 [_plane] call PIG_fnc_planeCreateCrew;
-/*
-_pilotClass = _plane getVariable "PIG_CAS_pilotClass";
-_pilotSide = _plane getVariable "PIG_CAS_pilotSide";
-_pilotGroupID = _plane getVariable "PIG_CAS_pilotGroupID";
-private _group = createGroup _pilotSide;
-_group setGroupIdGlobal [_pilotGroupID];
-_group setGroupId [_pilotGroupID];
-_driver = _group createUnit [_pilotClass, getPosATL _plane, [], 10, "NONE"];
-_driver moveInDriver _plane;
-_driver disableAI "TARGET";
-_driver disableAI "AUTOTARGET";
-_driver setCombatMode "BLUE";
-//_driver setBehaviourStrong "CARELESS";
-_driver disableAI "RADIOPROTOCOL";
-*/
 
 { detach _x } forEach attachedObjects (_plane getVariable "PIG_CAS_attachedLogic");
 
@@ -65,6 +50,7 @@ if (_plane getVariable ["PIG_CAS_planeOnCarrier", false]) then {
     _plane setVelocityModelSpace [0,20,0]; // Give it a slight push
     [_plane, _loiterPos, _loiterRadius] call PIG_fnc_createLoiterWaypoint;
 };
+/*
 // ((thisTrigger getVariable ["PIG_CAS_trgJetObject", objNull]) distance2d thisTrigger <= (thisTrigger getVariable ["PIG_CAS_trgLoiterRadius", PIG_CAS_LoiterMinRadius]) + 500) && 
 // Trigger to check distance from loiter position and make support available
 _trg = createTrigger ["EmptyDetector", _loiterPos, false];
@@ -80,6 +66,15 @@ _trg setTriggerStatements [
         _groupID = (group (driver _plane));
 
         ["PIG_CAS_Available_Notification", [_groupID, _groupID]] remoteExec ["BIS_fnc_showNotification", PIG_CAS_callers];
+        _plane spawn {
+            if (missionNamespace getVariable ["PIG_CAS_activateCasRadioMsg", true]) then {
+                missionNamespace setVariable ["PIG_CAS_activateCasRadioMsg", false, true];
+                private _source = selectRandom [0,1,2];
+                [(driver _this) sideRadio configName(configFile >> "CfgRadio" >> format["mp_groundsupport_05_newpilot_BHQ_%1", _source])] remoteExec ["sideRadio", PIG_CAS_callers];
+                sleep 30; 
+                missionNamespace setVariable ["PIG_CAS_activateCasRadioMsg", true, true];
+            }
+        };
         [_plane] spawn PIG_fnc_monitorFuel;
 
         //missionNamespace setVariable ["PIG_CAS_supportAvailable", true, true];
@@ -96,7 +91,8 @@ _trg setTriggerStatements [
     toString {}
 ];
 _trg setTriggerInterval 2;
-/*
+
+
     _plane spawn {
         // 
         waitUntil {sleep 1; ((getPosATL _this) # 2) >= PIG_CAS_LoiterAltitude}; 
@@ -109,6 +105,37 @@ _trg setTriggerInterval 2;
         [] call PIG_fnc_updateCasMenu;
     };
 */
+
+_plane addEventHandler ["Gear", {
+	params ["_plane", "_gearState"];
+    if !(_gearState) then {
+                _plane allowDamage true;
+        (driver _plane) allowDamage true;
+        _groupID = (group (driver _plane));
+
+        ["PIG_CAS_Available_Notification", [_groupID, _groupID]] remoteExec ["BIS_fnc_showNotification", PIG_CAS_callers];
+        _plane spawn {
+            if (missionNamespace getVariable ["PIG_CAS_activateCasRadioMsg", true]) then {
+                missionNamespace setVariable ["PIG_CAS_activateCasRadioMsg", false, true];
+                private _source = selectRandom [0,1,2];
+                [(driver _this) sideRadio configName(configFile >> "CfgRadio" >> format["mp_groundsupport_05_newpilot_BHQ_%1", _source])] remoteExec ["sideRadio", PIG_CAS_callers];
+                sleep 30; 
+                missionNamespace setVariable ["PIG_CAS_activateCasRadioMsg", true, true];
+            }
+        };
+        [_plane] spawn PIG_fnc_monitorFuel;
+
+        //missionNamespace setVariable ["PIG_CAS_supportAvailable", true, true];
+        _plane setVariable ["PIG_CAS_isTakingOff", false, true];
+        _plane setVariable ["PIG_CAS_isBusy", false, true];
+
+        [_plane] call PIG_fnc_updateCasMenu;
+
+        (driver _plane) disableAI "LIGHTS";
+        _plane setCollisionLight false;
+        _plane removeEventHandler [_thisEvent, _thisEventHandler]
+    }
+}];
 
 // Add EH
 [_plane] call PIG_fnc_planeAddEH;

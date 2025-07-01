@@ -58,7 +58,6 @@ if (count PIG_CAS_planeList == 0) exitWith {diag_log "[CAS MENU] No aircraft reg
 
     _plane attachTo [_logic];
 
-    //_plane setVariable ["PIG_CAS_initAttributes", [_logic, _groupID, _airportID, _onCarrier], true];
     _plane setVariable ["PIG_CAS_attachedLogic", _logic, true];
     _plane setVariable ["PIG_CAS_pilotGroupID", _groupID, true];
     _plane setVariable ["PIG_CAS_originalJetPos", [getPosATL _plane, direction _plane], true];

@@ -18,8 +18,6 @@ params[["_plane", objNull, [objNull]]];
 
 if (isNull _plane) exitWith {["[CAS MENU] aircraft is null"] call BIS_fnc_error};
 
-//_plane getVariable ["PIG_CAS_initAttributes", [objNull, (groupID(group(driver _plane))), 0, false]] params ["_logic", "_groupID", "_airportID", "_onCarrier"];
-
 // Misc variables
 _plane setVariable ["PIG_CAS_eventHandlers", [], true];
 _plane setVariable ["PIG_CAS_planeLoiterRadius", PIG_CAS_LoiterMinRadius, true];

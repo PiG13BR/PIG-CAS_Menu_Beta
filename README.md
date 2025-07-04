@@ -58,7 +58,7 @@
 - Open the CAS MENU by the default action interface or by adding a key to the custom control "User Action 12".
 ### Takeoff
 1. Select an airplane.
-2. **DOUBLE RMB** on the map to select a loiter position. You can also change the loiter's size by pressign **CTRL** and using **SCROLL-WHEEL**
+2. **DOUBLE LMB** on the map to select a loiter position. You can also change the loiter's size by pressign **CTRL** and using **SCROLL-WHEEL**
 - All aircrafts before taking off must have a position to loiter.
 - Once the aircraft is waiting for orders, you can change its loiter position and its loiter size anytime, by pressing the same buttons.
 - You can turn on the camera option in the right corner of the menu.
@@ -69,7 +69,7 @@
 2. Choose the support type.
 3. Select available ammunition.
 4. Select the attack position on the menu map.
-      - You can also choose the attack direction in supports type like **"STRAFING-RUN"** and **"CLUSTER"**, by **PRESSING LMB + MOVING THE MOUSE", an arrow can be seen where the aircraft will be coming from.
+      - You can also choose the attack direction in supports type like **"STRAFING-RUN"** and **"CLUSTER"**, by **PRESSING LMB + MOVING THE MOUSE**, an arrow can be seen where the aircraft will be coming from.
 5. Confirm the attack by pressing "Call Airstrike".
       - The aircraft will follow some pre-defined waypoints and drop its payload into the target position.
 
